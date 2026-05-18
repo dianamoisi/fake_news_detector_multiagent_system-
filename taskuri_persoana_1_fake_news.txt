@@ -1,0 +1,277 @@
+# Task-uri Persoana 1
+## Proiect: Multi-Agent Fake News Detection using Semantic Embeddings
+
+Rol principal:
+Persoana 1 se ocupă de dataset, analiza inițială a datelor și Agentul 1: Text Preparation Agent.
+
+Scopul părții tale:
+Să pregătești datele astfel încât Persoana 2 să poată folosi direct un fișier curat pentru embeddings și clasificare.
+
+---
+
+## Structura recomandată de fișiere
+
+În proiect ar trebui să existe:
+
+fake-news-project/
+│
+├── data/
+│   ├── Fake.csv
+│   ├── True.csv
+│   └── processed_news.csv
+│
+├── notebooks/
+│   ├── 01_data_preprocessing.ipynb
+│   ├── 02_embeddings_classification.ipynb
+│   └── final_project.ipynb
+│
+├── src/
+│   └── preprocessing.py
+│
+└── requirements.txt
+
+Tu lucrezi în principal în:
+- notebooks/01_data_preprocessing.ipynb
+- src/preprocessing.py
+
+---
+
+# 1. Pregătirea datasetului
+
+## Ce trebuie să faci
+
+1. Descarcă datasetul „Fake and Real News Dataset”.
+2. Pune fișierele în folderul data/:
+   - Fake.csv
+   - True.csv
+3. Încarcă fișierele în Jupyter Notebook folosind pandas.
+4. Adaugă etichete:
+   - Fake.csv primește label 0
+   - True.csv primește label 1
+5. Combină cele două dataframe-uri într-unul singur.
+
+## Cod orientativ
+
+import pandas as pd
+
+fake = pd.read_csv("data/Fake.csv")
+true = pd.read_csv("data/True.csv")
+
+fake["label"] = 0
+true["label"] = 1
+
+df = pd.concat([fake, true], ignore_index=True)
+
+## Output așteptat
+
+La finalul acestui pas trebuie să ai un dataframe cu articole fake și reale în același loc.
+
+Coloane posibile:
+- title
+- text
+- subject
+- date
+- label
+
+---
+
+# 2. Analiza inițială a datelor
+
+## Ce trebuie să verifici
+
+Afișează:
+1. Numărul total de articole.
+2. Numărul de articole fake.
+3. Numărul de articole reale.
+4. Primele 5 rânduri.
+5. Dacă există valori lipsă.
+6. Distribuția claselor.
+
+## Cod orientativ
+
+print(df.shape)
+print(df["label"].value_counts())
+print(df.head())
+print(df.isnull().sum())
+
+## Grafic recomandat
+
+import matplotlib.pyplot as plt
+
+df["label"].value_counts().plot(kind="bar")
+plt.title("Distribuția claselor")
+plt.xlabel("Label")
+plt.ylabel("Număr articole")
+plt.show()
+
+## Ce scrii în notebook
+
+Scrie scurt:
+Datasetul conține articole reale și articole false. Fiecare articol are un titlu, un text, o categorie și o dată. Pentru proiect folosim textul și titlul articolului, iar labelul indică dacă articolul este fake sau real.
+
+---
+
+# 3. Crearea coloanei content
+
+## Ce trebuie să faci
+
+Combină titlul și textul articolului într-o singură coloană.
+
+## Cod orientativ
+
+df["title"] = df["title"].fillna("")
+df["text"] = df["text"].fillna("")
+
+df["content"] = df["title"] + " " + df["text"]
+
+## De ce facem asta
+
+Titlul poate conține informații importante, iar textul conține conținutul articolului. Prin combinarea lor, modelul primește mai mult context.
+
+---
+
+# 4. Agent 1: Text Preparation Agent
+
+## Rolul agentului
+
+Agentul 1 primește textul brut și îl curăță.
+
+El face:
+- transformare în lowercase;
+- eliminare linkuri;
+- eliminare caractere speciale;
+- eliminare spații multiple;
+- eliminare texte goale.
+
+## Cod pentru src/preprocessing.py
+
+Creează fișierul src/preprocessing.py și pune în el:
+
+import re
+
+def clean_text(text):
+    text = str(text).lower()
+    text = re.sub(r"http\S+|www\S+", "", text)
+    text = re.sub(r"[^a-zA-Z\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+## Cod în notebook
+
+from src.preprocessing import clean_text
+
+df["clean_content"] = df["content"].apply(clean_text)
+
+## Verificare
+
+print(df[["content", "clean_content", "label"]].head())
+
+---
+
+# 5. Eliminarea articolelor goale
+
+## Ce trebuie să faci
+
+După curățare, unele articole pot rămâne fără conținut util. Trebuie eliminate.
+
+## Cod orientativ
+
+df = df[df["clean_content"].str.len() > 0]
+
+## Verificare
+
+print(df.shape)
+
+---
+
+# 6. Amestecarea datasetului
+
+## Ce trebuie să faci
+
+Amestecă articolele ca să nu fie toate fake la început și toate reale după.
+
+## Cod orientativ
+
+df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+
+---
+
+# 7. Opțional: subset pentru rulare mai rapidă
+
+Dacă embedding-urile rulează prea greu, puteți folosi un subset echilibrat.
+
+## Cod orientativ
+
+fake_sample = df[df["label"] == 0].sample(3000, random_state=42)
+true_sample = df[df["label"] == 1].sample(3000, random_state=42)
+
+df = pd.concat([fake_sample, true_sample], ignore_index=True)
+df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+
+Recomandare:
+Pentru început folosiți 3000 fake + 3000 real.
+Dacă merge bine, puteți crește la 5000 + 5000.
+
+---
+
+# 8. Salvarea datelor procesate
+
+## Ce trebuie să faci
+
+Salvează dataframe-ul final într-un fișier CSV pe care îl va folosi Persoana 2.
+
+## Cod orientativ
+
+df[["content", "clean_content", "label"]].to_csv(
+    "data/processed_news.csv",
+    index=False
+)
+
+## Output final
+
+Trebuie să existe fișierul:
+
+data/processed_news.csv
+
+Acesta trebuie să conțină:
+- content
+- clean_content
+- label
+
+---
+
+# 9. Ce trebuie să predai către Persoana 2
+
+Trimite / urcă pe Git:
+- data/processed_news.csv
+- src/preprocessing.py
+- notebooks/01_data_preprocessing.ipynb
+
+Persoana 2 va folosi:
+df = pd.read_csv("data/processed_news.csv")
+
+---
+
+# 10. Ce scrii în notebook la explicații
+
+Poți folosi textul acesta:
+
+Agentul 1 este responsabil pentru pregătirea textului. Acesta primește articolele în format brut, combină titlul cu textul articolului și aplică pași de curățare precum transformarea în litere mici, eliminarea linkurilor, eliminarea caracterelor speciale și eliminarea spațiilor multiple. Rezultatul este un text curat, care poate fi trimis către Agentul 2 pentru transformare în embeddings semantice.
+
+---
+
+# 11. Checklist final pentru Persoana 1
+
+[ ] Am descărcat Fake.csv și True.csv.
+[ ] Am adăugat label 0 pentru fake și label 1 pentru real.
+[ ] Am combinat dataseturile.
+[ ] Am verificat dimensiunea datasetului.
+[ ] Am verificat valorile lipsă.
+[ ] Am făcut grafic cu distribuția claselor.
+[ ] Am creat coloana content = title + text.
+[ ] Am implementat clean_text().
+[ ] Am creat coloana clean_content.
+[ ] Am eliminat textele goale.
+[ ] Am amestecat datasetul.
+[ ] Am salvat data/processed_news.csv.
+[ ] Am scris explicația pentru Agentul 1.
