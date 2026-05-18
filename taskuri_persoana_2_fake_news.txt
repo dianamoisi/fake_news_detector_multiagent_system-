@@ -716,21 +716,21 @@ Fișierele .npy pot fi mari, deci întrebați laboranta dacă trebuie puse pe Gi
 # 16. Checklist final pentru Persoana 2
 
 [X] Am citit data/processed_news.csv.
-[ ] Am verificat coloanele clean_content și label.
-[ ] Am făcut train/test split.
-[ ] Am creat subset pentru rulare rapidă.
-[ ] Am instalat/importat transformers și torch.
-[ ] Am încărcat tokenizer-ul DistilBERT.
-[ ] Am încărcat modelul distilbert-base-uncased.
-[ ] Am implementat funcția extract_bert_features().
-[ ] Am generat feature-uri BERT pentru train și test.
-[ ] Am salvat feature-urile BERT, dacă rulează greu.
-[ ] Am antrenat Logistic Regression sau MLPClassifier.
-[ ] Am calculat accuracy.
-[ ] Am afișat classification report.
-[ ] Am afișat confusion matrix.
-[ ] Am făcut funcția predict_news().
-[ ] Am testat 3-5 exemple noi.
+[X] Am verificat coloanele clean_content și label.
+[X] Am făcut train/test split.
+[X] Am creat subset pentru rulare rapidă.
+[X] Am instalat/importat transformers și torch.
+[X] Am încărcat tokenizer-ul DistilBERT.
+[X] Am încărcat modelul distilbert-base-uncased.
+[X] Am implementat funcția extract_bert_features().
+[X] Am generat feature-uri BERT pentru train și test.
+[X] Am salvat feature-urile BERT, dacă rulează greu.
+[X] Am antrenat Logistic Regression sau MLPClassifier.
+[X] Am calculat accuracy.
+[X] Am afișat classification report.
+[X] Am afișat confusion matrix.
+[X] Am făcut funcția predict_news().
+[X] Am testat 3-5 exemple noi.
 [ ] Am scris explicația pentru Agentul 2.
 [ ] Am scris explicația pentru Agentul 3.
 
